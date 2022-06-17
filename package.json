@@ -4,8 +4,8 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "sim": "node scripts/run.js",
-        "deploy": "npx hardhat run --network localhost scripts/deploy.js"
+        "sim": "npx hardhat run --network hardhat scripts/run.js",
+        "compile": "npx hardhat compile"
     },
     "author": "Conor Deegan",
     "license": "ISC",
