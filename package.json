@@ -4,7 +4,10 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "sim": "npx hardhat run --network hardhat scripts/run.js",
+        "start": "npx hardhat node",
+        "deploy": "npx hardhat run --network localhost scripts/deploy.js",
+        "run": "npx hardhat run --network localhost scripts/run.js",
+        "agent": "npx hardhat run --network localhost scripts/agent.js",
         "compile": "npx hardhat compile"
     },
     "author": "Conor Deegan",
