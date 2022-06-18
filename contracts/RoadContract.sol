@@ -33,7 +33,12 @@ contract RoadContract {
             inhabitants: new string[](0)
         });
         roads[_roadId] = newRoad;
-        ISatNav(satNavAddress).addNode(_roadId, address(this), _adjacents);
+        ISatNav(satNavAddress).addNode(
+            _roadId,
+            address(this),
+            _adjacents,
+            "road"
+        );
     }
 
     // function used to get a road

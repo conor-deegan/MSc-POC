@@ -4,11 +4,13 @@ pragma solidity ^0.8.0;
 
 import "hardhat/console.sol";
 import "./IAgentContract.sol";
+import "./Utils.sol";
 
-contract SatNav {
+contract SatNav is Utils {
     // state
     mapping(string => bool) mappedNodes;
     mapping(string => address) nodeToAddress;
+    mapping(string => string) nodeToType;
     string[] nodes;
     mapping(string => string[]) adjacencyList;
     address agentAddress;
@@ -20,12 +22,14 @@ contract SatNav {
     function addNode(
         string memory _nodeId,
         address _nodeAddress,
-        string[] memory _adjacents
+        string[] memory _adjacents,
+        string memory _type
     ) public {
         if (!mappedNodes[_nodeId]) {
             nodes.push(_nodeId);
             mappedNodes[_nodeId] = true;
             nodeToAddress[_nodeId] = _nodeAddress;
+            nodeToType[_nodeId] = _type;
         }
         uint256 length = _adjacents.length;
         for (uint256 i = 0; i < length; i++) {
@@ -77,5 +81,22 @@ contract SatNav {
         returns (address)
     {
         return nodeToAddress[_nodeId];
+    }
+
+    // function get optimal move
+    function getOptimalMove(
+        string memory _agentId,
+        string memory _currentLocation,
+        string[] memory _plan
+    ) public {
+        require(msg.sender == agentAddress, "Cannot call this function");
+        bool canExecute = isIn(_currentLocation, _plan);
+        if (!canExecute) {
+            IAgentContract(agentAddress).abortPlan(_agentId);
+            return;
+        } else if (isLast(_currentLocation, _plan)) {
+            IAgentContract(agentAddress).planCompleted(_agentId);
+            return;
+        } else {}
     }
 }

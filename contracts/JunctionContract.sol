@@ -25,7 +25,12 @@ contract JunctionContract {
             adjacents: _adjacents
         });
         junctions[_junctionId] = newJunction;
-        ISatNav(satNavAddress).addNode(_junctionId, address(this), _adjacents);
+        ISatNav(satNavAddress).addNode(
+            _junctionId,
+            address(this),
+            _adjacents,
+            "junction"
+        );
     }
 
     // function used to get a junction

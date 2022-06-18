@@ -25,7 +25,12 @@ contract BuildingContract {
             adjacents: _adjacents
         });
         buildings[_buildingId] = newBuilding;
-        ISatNav(satNavAddress).addNode(_buildingId, address(this), _adjacents);
+        ISatNav(satNavAddress).addNode(
+            _buildingId,
+            address(this),
+            _adjacents,
+            "building"
+        );
     }
 
     // function used to get a building

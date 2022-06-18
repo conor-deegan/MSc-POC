@@ -12,8 +12,11 @@ contract AgentContract {
         string id;
         string currentLocation;
         string goalLocation;
+        bool activePlan;
+        string[] plan;
     }
     mapping(string => Agent) agents;
+    string[] agentIds;
 
     constructor(address _satNavAddress) {
         satNavAddress = _satNavAddress;
@@ -21,15 +24,24 @@ contract AgentContract {
     }
 
     // function used to create an agent
-    function create(string memory _agentId, string memory _currentLocation)
-        public
-    {
+    function create(
+        string memory _agentId,
+        string memory _currentLocation
+    ) public {
         Agent memory newAgent = Agent({
             id: _agentId,
             currentLocation: _currentLocation,
-            goalLocation: ""
+            goalLocation: "",
+            activePlan: false,
+            plan: new string[](0)
         });
         agents[_agentId] = newAgent;
+        agentIds.push(_agentId);
+    }
+
+    // function used to get all agent ids
+    function getAll() public view returns (string[] memory) {
+        return agentIds;
     }
 
     // function used to get an agent
@@ -46,7 +58,7 @@ contract AgentContract {
         creatPlan(agent);
     }
 
-    // function used to create a plan for an agent
+    // function used to create a plan for an agent (private)
     function creatPlan(Agent memory _agent) private {
         ISatNav(satNavAddress).shortestPathRequest(
             _agent.id,
@@ -56,13 +68,43 @@ contract AgentContract {
     }
 
     // function used to receive the plan
-    function planHook(string memory _agentId, string[] memory _plan)
-        public
-        view
-    {
-        console.log(_agentId);
-        for (uint256 i = 0; i < _plan.length; i++) {
-            console.log(_plan[i]);
+    function planHook(string memory _agentId, string[] memory _plan) public {
+        require(msg.sender == satNavAddress, "Cannot call this function");
+        Agent storage agent = agents[_agentId];
+        agent.activePlan = true;
+        agent.plan = _plan;
+    }
+
+    // function called on each epoch
+    function epoch(string memory _agentId) public {
+        Agent memory agent = agents[_agentId];
+        if (!agent.activePlan) {
+            return;
+        } else {
+            ISatNav(satNavAddress).getOptimalMove(
+                _agentId,
+                agent.currentLocation,
+                agent.plan
+            );
+            return;
         }
+    }
+
+    // function called to abort the plan if there is an error
+    function abortPlan(string memory _agentId) public {
+        require(msg.sender == satNavAddress, "Cannot call this function");
+        Agent storage agent = agents[_agentId];
+        agent.activePlan = false;
+        agent.plan = new string[](0);
+        console.log("Aborting plan");
+    }
+
+    // function called when the plan is completed
+    function planCompleted(string memory _agentId) public {
+        require(msg.sender == satNavAddress, "Cannot call this function");
+        Agent storage agent = agents[_agentId];
+        agent.activePlan = false;
+        agent.plan = new string[](0);
+        console.log("Plan completed");
     }
 }
