@@ -42,8 +42,10 @@ async function main() {
     await junctionContract.add('junction1', 5, ['road1', 'road2']);
     await roadContract.add('road3', 10, ['road2']);
     await roadContract.add('road4', 10, ['road3']);
-    await roadContract.add('road5', 10, ['road4', 'road1']);
+    await roadContract.add('road5', 10, ['road4']);
+    await roadContract.add('road6', 10, ['road5', 'road1']);
     await buildingContract.add('building1', ['road1']);
+    await buildingContract.add('building2', ['road3']);
 }
 
 main();

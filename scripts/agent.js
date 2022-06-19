@@ -11,7 +11,7 @@ const main = async () => {
     await agentContract.create('agent1', 'building1');
 
     // give the agent a goal
-    await agentContract.addGoal('agent1', 'road3');
+    await agentContract.addGoal('agent1', 'building2');
 }
 
 main();
