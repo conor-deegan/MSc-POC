@@ -15,8 +15,9 @@ const main = async () => {
         for (const agentId of agentIds) {
             await agentContract.epoch(agentId);
         }
-        // wait 1 second and then recusively call epoch
-        await new Promise(resolve => setTimeout(resolve, 3000));
+        // wait N milliseconds and then recusively call epoch
+        const N = 2000;
+        await new Promise(resolve => setTimeout(resolve, N));
         epoch();
     }
     epoch();

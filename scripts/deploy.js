@@ -32,7 +32,6 @@ async function main() {
     // set up oracle listener
     satNav.on("NewShortestPathJob", async (agentId, source, target) => {
         const shortestPath = await getShortestPath(satNav, source, target, agentId);
-        console.log(shortestPath);
         await satNav.shortestPathResponse(shortestPath.agentId, shortestPath.path);
     });
 
