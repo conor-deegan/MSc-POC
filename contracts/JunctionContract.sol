@@ -10,19 +10,30 @@ contract JunctionContract {
     address satNavAddress;
     struct Junction {
         string id;
+        uint256 queueLength;
         string[] adjacents;
+        string[] inhabitants;
     }
     mapping(string => Junction) junctions;
+    mapping(string => mapping(string => bool)) inhabitants;
+    mapping(string => uint256) inhabitantCounter;
+    mapping(string => mapping(string => uint256)) inhabitantPosition;
 
     constructor(address _satNavAddress) {
         satNavAddress = _satNavAddress;
     }
 
     // function used to add a junction to the network
-    function add(string memory _junctionId, string[] memory _adjacents) public {
+    function add(
+        string memory _junctionId,
+        uint256 _queueLength,
+        string[] memory _adjacents
+    ) public {
         Junction memory newJunction = Junction({
             id: _junctionId,
-            adjacents: _adjacents
+            queueLength: _queueLength,
+            adjacents: _adjacents,
+            inhabitants: new string[](0)
         });
         junctions[_junctionId] = newJunction;
         ISatNav(satNavAddress).addNode(
@@ -40,5 +51,39 @@ contract JunctionContract {
         returns (Junction memory)
     {
         return junctions[_junctionId];
+    }
+
+    // function used to get a junctions queue length
+    function getLength(string memory _junctionId)
+        public
+        view
+        returns (uint256)
+    {
+        return junctions[_junctionId].queueLength;
+    }
+
+    // function used to enter a junction
+    function enter(string memory _junctionId, string memory _agentId) public {
+        inhabitants[_junctionId][_agentId] = true;
+        inhabitantPosition[_junctionId][_agentId] = 0;
+        inhabitantCounter[_junctionId]++;
+        console.log("ENTERING JUNCTION:", _junctionId, "AGENT:", _agentId);
+    }
+
+    // function used to exit a junction
+    function exit(string memory _junctionId, string memory _agentId) public {
+        inhabitants[_junctionId][_agentId] = false;
+        inhabitantPosition[_junctionId][_agentId] = 0;
+        inhabitantCounter[_junctionId]--;
+        console.log("EXITING JUNCTION:", _junctionId, "AGENT:", _agentId);
+    }
+
+    // function used to move up the queue in the junction
+    function progress(string memory _junctionId, string memory _agentId)
+        public
+    {
+        inhabitantPosition[_junctionId][_agentId]++;
+        console.log("PROGRESSING THROUGH JUNCTION:", _junctionId, "AGENT ID", _agentId);
+        console.log("PROGRESS:", inhabitantPosition[_junctionId][_agentId]);
     }
 }

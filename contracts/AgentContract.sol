@@ -4,8 +4,10 @@ pragma solidity ^0.8.0;
 
 import "hardhat/console.sol";
 import "./ISatNav.sol";
+import "./INode.sol";
+import "./Utils.sol";
 
-contract AgentContract {
+contract AgentContract is Utils {
     // state
     address satNavAddress;
     struct Agent {
@@ -14,9 +16,11 @@ contract AgentContract {
         string goalLocation;
         bool activePlan;
         string[] plan;
+        uint256 counter;
     }
     mapping(string => Agent) agents;
     string[] agentIds;
+    mapping(string => address) nodeToAddress;
 
     constructor(address _satNavAddress) {
         satNavAddress = _satNavAddress;
@@ -24,19 +28,39 @@ contract AgentContract {
     }
 
     // function used to create an agent
-    function create(
-        string memory _agentId,
-        string memory _currentLocation
-    ) public {
+    function create(string memory _agentId, string memory _currentLocation)
+        public
+    {
         Agent memory newAgent = Agent({
             id: _agentId,
             currentLocation: _currentLocation,
             goalLocation: "",
             activePlan: false,
-            plan: new string[](0)
+            plan: new string[](0),
+            counter: 0
         });
         agents[_agentId] = newAgent;
         agentIds.push(_agentId);
+        INode(getNodeAddress(_currentLocation)).enter(
+            _currentLocation,
+            _agentId
+        );
+    }
+
+    // function used to set a nodes address
+    function setNodeAddress(string memory _nodeId, address _nodeAddress)
+        public
+    {
+        nodeToAddress[_nodeId] = _nodeAddress;
+    }
+
+    // function for getting a node's address from the nodeId
+    function getNodeAddress(string memory _nodeId)
+        public
+        view
+        returns (address)
+    {
+        return nodeToAddress[_nodeId];
     }
 
     // function used to get all agent ids
@@ -84,10 +108,31 @@ contract AgentContract {
             ISatNav(satNavAddress).getOptimalMove(
                 _agentId,
                 agent.currentLocation,
+                agent.counter,
                 agent.plan
             );
             return;
         }
+    }
+
+    // function to receive optimal move
+    function optimalMoveHook(
+        string memory _agentId,
+        string memory _nodeId,
+        string memory _identifier,
+        function(string memory, string memory) external callback
+    ) public {
+        Agent storage agent = agents[_agentId];
+        if (compareStrings(_identifier, "enter")) {
+            agent.currentLocation = _nodeId;
+            agent.counter = 0;
+        } else if (compareStrings(_identifier, "exit")) {
+            agent.currentLocation = "";
+            agent.counter = 0;
+        } else if (compareStrings(_identifier, "progress")) {
+            agent.counter++;
+        }
+        callback(_nodeId, _agentId);
     }
 
     // function called to abort the plan if there is an error
@@ -96,7 +141,7 @@ contract AgentContract {
         Agent storage agent = agents[_agentId];
         agent.activePlan = false;
         agent.plan = new string[](0);
-        console.log("Aborting plan");
+        console.log("ABORTING PLAN");
     }
 
     // function called when the plan is completed
@@ -105,6 +150,6 @@ contract AgentContract {
         Agent storage agent = agents[_agentId];
         agent.activePlan = false;
         agent.plan = new string[](0);
-        console.log("Plan completed");
+        console.log("PLAN COMPLETED");
     }
 }

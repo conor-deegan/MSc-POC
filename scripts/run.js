@@ -13,10 +13,10 @@ const main = async () => {
         const agentIds = await agentContract.getAll();
         // loop over each agentId
         for (const agentId of agentIds) {
-            // logic goes here
+            await agentContract.epoch(agentId);
         }
         // wait 1 second and then recusively call epoch
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 3000));
         epoch();
     }
     epoch();

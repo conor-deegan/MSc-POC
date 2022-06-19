@@ -15,6 +15,9 @@ contract RoadContract {
         string[] inhabitants;
     }
     mapping(string => Road) roads;
+    mapping(string => mapping(string => bool)) inhabitants;
+    mapping(string => uint256) inhabitantCounter;
+    mapping(string => mapping(string => uint256)) inhabitantPosition;
 
     constructor(address _satNavAddress) {
         satNavAddress = _satNavAddress;
@@ -44,5 +47,33 @@ contract RoadContract {
     // function used to get a road
     function get(string memory _roadId) public view returns (Road memory) {
         return roads[_roadId];
+    }
+
+    // function used to get a roads length
+    function getLength(string memory _roadId) public view returns (uint256) {
+        return roads[_roadId].length;
+    }
+
+    // function used to enter a road
+    function enter(string memory _roadId, string memory _agentId) public {
+        inhabitants[_roadId][_agentId] = true;
+        inhabitantPosition[_roadId][_agentId] = 0;
+        inhabitantCounter[_roadId]++;
+        console.log("ENTERING RAOD:", _roadId, "AGENT:", _agentId);
+    }
+
+    // function used to exit a road
+    function exit(string memory _roadId, string memory _agentId) public {
+        inhabitants[_roadId][_agentId] = false;
+        inhabitantPosition[_roadId][_agentId] = 0;
+        inhabitantCounter[_roadId]--;
+        console.log("EXITING RAOD:", _roadId, "AGENT:", _agentId);
+    }
+
+    // function used to progress along the road
+    function progress(string memory _roadId, string memory _agentId) public {
+        inhabitantPosition[_roadId][_agentId]++;
+        console.log("PROGRESSING ALONG ROAD:", _roadId, "AGENT ID", _agentId);
+        console.log("PROGRESS:", inhabitantPosition[_roadId][_agentId]);
     }
 }

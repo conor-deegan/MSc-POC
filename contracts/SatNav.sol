@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 
 import "hardhat/console.sol";
 import "./IAgentContract.sol";
+import "./INode.sol";
 import "./Utils.sol";
 
 contract SatNav is Utils {
@@ -29,6 +30,7 @@ contract SatNav is Utils {
             nodes.push(_nodeId);
             mappedNodes[_nodeId] = true;
             nodeToAddress[_nodeId] = _nodeAddress;
+            IAgentContract(agentAddress).setNodeAddress(_nodeId, _nodeAddress);
             nodeToType[_nodeId] = _type;
         }
         uint256 length = _adjacents.length;
@@ -87,16 +89,104 @@ contract SatNav is Utils {
     function getOptimalMove(
         string memory _agentId,
         string memory _currentLocation,
+        uint256 _progress,
         string[] memory _plan
     ) public {
         require(msg.sender == agentAddress, "Cannot call this function");
-        bool canExecute = isIn(_currentLocation, _plan);
-        if (!canExecute) {
+        if (!isIn(_currentLocation, _plan)) {
+            // check if the agent plan cannot be completed
             IAgentContract(agentAddress).abortPlan(_agentId);
             return;
         } else if (isLast(_currentLocation, _plan)) {
+            // check if the agent has completed it's plan
             IAgentContract(agentAddress).planCompleted(_agentId);
             return;
-        } else {}
+        } else {
+            // on each step I now know that the current locaion is in the plan and not the last action
+
+            // get index of current location in plan
+            uint256 indexOfCurrentLocation = indexOf(_currentLocation, _plan);
+
+            // next step of plan
+            string memory nextStep = _plan[indexOfCurrentLocation + 1];
+
+            // handle if the current location is a building
+            if (compareStrings(nodeToType[_currentLocation], "building")) {
+                IAgentContract(agentAddress).optimalMoveHook(
+                    _agentId,
+                    _currentLocation,
+                    "exit",
+                    INode(getNodeAddress(_currentLocation)).exit
+                );
+                IAgentContract(agentAddress).optimalMoveHook(
+                    _agentId,
+                    nextStep,
+                    "enter",
+                    INode(getNodeAddress(nextStep)).enter
+                );
+            }
+
+            // handle if the current location is a road
+            if (compareStrings(nodeToType[_currentLocation], "road")) {
+                uint256 length = INode(getNodeAddress(_currentLocation))
+                    .getLength(_currentLocation);
+
+                if (_progress == length) {
+                    IAgentContract(agentAddress).optimalMoveHook(
+                        _agentId,
+                        _currentLocation,
+                        "exit",
+                        INode(getNodeAddress(_currentLocation)).exit
+                    );
+                    IAgentContract(agentAddress).optimalMoveHook(
+                        _agentId,
+                        nextStep,
+                        "enter",
+                        INode(getNodeAddress(nextStep)).enter
+                    );
+                } else if (_progress < length) {
+                    IAgentContract(agentAddress).optimalMoveHook(
+                        _agentId,
+                        _currentLocation,
+                        "progress",
+                        INode(getNodeAddress(_currentLocation)).progress
+                    );
+                } else {
+                    IAgentContract(agentAddress).abortPlan(_agentId);
+                    return;
+                }
+            }
+
+            // handle if the current location is a junction
+            if (compareStrings(nodeToType[_currentLocation], "junction")) {
+                uint256 length = INode(getNodeAddress(_currentLocation))
+                    .getLength(_currentLocation);
+
+                if (_progress == length) {
+                    IAgentContract(agentAddress).optimalMoveHook(
+                        _agentId,
+                        _currentLocation,
+                        "exit",
+                        INode(getNodeAddress(_currentLocation)).exit
+                    );
+                    IAgentContract(agentAddress).optimalMoveHook(
+                        _agentId,
+                        nextStep,
+                        "enter",
+                        INode(getNodeAddress(nextStep)).enter
+                    );
+                } else if (_progress < length) {
+                    IAgentContract(agentAddress).optimalMoveHook(
+                        _agentId,
+                        _currentLocation,
+                        "progress",
+                        INode(getNodeAddress(_currentLocation)).progress
+                    );
+                } else {
+                    IAgentContract(agentAddress).abortPlan(_agentId);
+                    return;
+                }
+            }
+        }
     }
 }

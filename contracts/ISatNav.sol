@@ -21,6 +21,9 @@ interface ISatNav {
     function getOptimalMove(
         string memory _agentId,
         string memory _currentLocation,
+        uint _progress,
         string[] memory _plan
     ) external;
+
+    function getNodeAddress(string memory _nodeId) external;
 }

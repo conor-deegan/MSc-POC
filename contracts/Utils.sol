@@ -42,4 +42,21 @@ contract Utils {
             keccak256(abi.encodePacked(_str1)) ==
             keccak256(abi.encodePacked(_str2));
     }
+
+    // function used to get an elements index in an array
+    function indexOf(string memory _element, string[] memory _array)
+        public
+        pure
+        returns (uint256)
+    {
+        uint256 length = _array.length;
+        uint256 index = 0;
+        for (uint256 i = 0; i < length; i++) {
+            if (compareStrings(_element, _array[i])) {
+                index = i;
+                break;
+            }
+        }
+        return index;
+    }
 }
