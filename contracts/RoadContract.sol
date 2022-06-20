@@ -19,6 +19,9 @@ contract RoadContract {
     mapping(string => uint256) inhabitantCounter;
     mapping(string => mapping(string => uint256)) inhabitantPosition;
 
+    // logging event structure
+    event Log(string nodeId, string agentId, string log);
+
     constructor(address _satNavAddress) {
         satNavAddress = _satNavAddress;
     }
@@ -59,7 +62,7 @@ contract RoadContract {
         inhabitants[_roadId][_agentId] = true;
         inhabitantPosition[_roadId][_agentId] = 0;
         inhabitantCounter[_roadId]++;
-        console.log("ENTERING RAOD:", _roadId, "AGENT:", _agentId);
+        emit Log(_roadId, _agentId, "Entered Road");
     }
 
     // function used to exit a road
@@ -67,13 +70,12 @@ contract RoadContract {
         inhabitants[_roadId][_agentId] = false;
         inhabitantPosition[_roadId][_agentId] = 0;
         inhabitantCounter[_roadId]--;
-        console.log("EXITING RAOD:", _roadId, "AGENT:", _agentId);
+        emit Log(_roadId, _agentId, "Exited Road");
     }
 
     // function used to progress along the road
     function progress(string memory _roadId, string memory _agentId) public {
         inhabitantPosition[_roadId][_agentId]++;
-        console.log("PROGRESSING ALONG ROAD:", _roadId, "AGENT ID", _agentId);
-        console.log("PROGRESS:", inhabitantPosition[_roadId][_agentId]);
+        emit Log(_roadId, _agentId, "Progressed Along Road");
     }
 }

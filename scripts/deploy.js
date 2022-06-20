@@ -28,11 +28,32 @@ async function main() {
         junctionContract: junctionContract.address
     };
     fs.writeFileSync('contractAddresses.json', JSON.stringify(contractAddresses, null, 4));
+    fs.appendFileSync('logs.txt', "\n-------- NEW RUN --------\n");
 
     // set up oracle listener
     satNav.on("NewShortestPathJob", async (agentId, source, target) => {
         const shortestPath = await getShortestPath(satNav, source, target, agentId);
         await satNav.shortestPathResponse(shortestPath.agentId, shortestPath.path);
+        const data = `CONTRACT: SATNAV, NEW SHORTEST PATH, AGENT ID: ${agentId}, PATH: ${shortestPath.path}\n`
+        fs.appendFileSync('logs.txt', data);
+    });
+
+    // set up event listners for logging
+    agentContract.on("Log", (agentId, log) => {
+        const data = `CONTRACT: AGENT, AGENT ID: ${agentId}, MESSAGE: ${log}\n`
+        fs.appendFileSync('logs.txt', data);
+    });
+    roadContract.on("Log", (nodeId, agentId, log) => {
+        const data = `CONTRACT: ROAD, NODE ID: ${nodeId}, AGENT ID: ${agentId}, MESSAGE: ${log}\n`
+        fs.appendFileSync('logs.txt', data);
+    });
+    buildingContract.on("Log", (nodeId, agentId, log) => {
+        const data = `CONTRACT: BUILDING, NODE ID: ${nodeId}, AGENT ID: ${agentId}, MESSAGE: ${log}\n`
+        fs.appendFileSync('logs.txt', data);
+    });
+    junctionContract.on("Log", (nodeId, agentId, log) => {
+        const data = `CONTRACT: JUNCTION, NODE ID: ${nodeId}, AGENT ID: ${agentId}, MESSAGE: ${log}\n`
+        fs.appendFileSync('logs.txt', data);
     });
 
     // set up network structure

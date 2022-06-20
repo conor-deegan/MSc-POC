@@ -11,4 +11,7 @@ typechain
 # Hardhat files
 cache
 artifacts
+
+# Other
 contractAddresses.json
+logs.txt

@@ -19,6 +19,9 @@ contract JunctionContract {
     mapping(string => uint256) inhabitantCounter;
     mapping(string => mapping(string => uint256)) inhabitantPosition;
 
+    // logging event structure
+    event Log(string nodeId, string agentId, string log);
+
     constructor(address _satNavAddress) {
         satNavAddress = _satNavAddress;
     }
@@ -67,7 +70,7 @@ contract JunctionContract {
         inhabitants[_junctionId][_agentId] = true;
         inhabitantPosition[_junctionId][_agentId] = 0;
         inhabitantCounter[_junctionId]++;
-        console.log("ENTERING JUNCTION:", _junctionId, "AGENT:", _agentId);
+        emit Log(_junctionId, _agentId, "Entered Junction");
     }
 
     // function used to exit a junction
@@ -75,7 +78,7 @@ contract JunctionContract {
         inhabitants[_junctionId][_agentId] = false;
         inhabitantPosition[_junctionId][_agentId] = 0;
         inhabitantCounter[_junctionId]--;
-        console.log("EXITING JUNCTION:", _junctionId, "AGENT:", _agentId);
+        emit Log(_junctionId, _agentId, "Exited Junction");
     }
 
     // function used to move up the queue in the junction
@@ -83,7 +86,6 @@ contract JunctionContract {
         public
     {
         inhabitantPosition[_junctionId][_agentId]++;
-        console.log("PROGRESSING THROUGH JUNCTION:", _junctionId, "AGENT ID", _agentId);
-        console.log("PROGRESS:", inhabitantPosition[_junctionId][_agentId]);
+        emit Log(_junctionId, _agentId, "Moved Up Junction Queue");
     }
 }

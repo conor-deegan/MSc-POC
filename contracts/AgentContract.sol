@@ -22,6 +22,9 @@ contract AgentContract is Utils {
     string[] agentIds;
     mapping(string => address) nodeToAddress;
 
+    // logging event structure
+    event Log(string agentId, string log);
+
     constructor(address _satNavAddress) {
         satNavAddress = _satNavAddress;
         ISatNav(_satNavAddress).setAgentAddress(address(this));
@@ -141,7 +144,7 @@ contract AgentContract is Utils {
         Agent storage agent = agents[_agentId];
         agent.activePlan = false;
         agent.plan = new string[](0);
-        console.log("ABORTING PLAN");
+        emit Log(_agentId, "Aborting Plan");
     }
 
     // function called when the plan is completed
@@ -150,6 +153,6 @@ contract AgentContract is Utils {
         Agent storage agent = agents[_agentId];
         agent.activePlan = false;
         agent.plan = new string[](0);
-        console.log("PLAN COMPLETED");
+        emit Log(_agentId, "Plan Completed");
     }
 }

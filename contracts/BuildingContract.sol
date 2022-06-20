@@ -16,6 +16,9 @@ contract BuildingContract {
     mapping(string => mapping(string => bool)) inhabitants;
     mapping(string => uint256) inhabitantCounter;
 
+    // logging event structure
+    event Log(string nodeId, string agentId, string log);
+
     constructor(address _satNavAddress) {
         satNavAddress = _satNavAddress;
     }
@@ -48,13 +51,13 @@ contract BuildingContract {
     function enter(string memory _buildingId, string memory _agentId) public {
         inhabitants[_buildingId][_agentId] = true;
         inhabitantCounter[_buildingId]++;
-        console.log("ENTERING BUILDING:", _buildingId, "AGENT:", _agentId);
+        emit Log(_buildingId, _agentId, "Entered Building");
     }
 
     // function used to exit a building
     function exit(string memory _buildingId, string memory _agentId) public {
         inhabitants[_buildingId][_agentId] = false;
         inhabitantCounter[_buildingId]--;
-        console.log("EXITING BUILDING:", _buildingId, "AGENT:", _agentId);
+        emit Log(_buildingId, _agentId, "Exited Building");
     }
 }
