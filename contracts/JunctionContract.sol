@@ -10,7 +10,6 @@ contract JunctionContract {
     address satNavAddress;
     struct Junction {
         string id;
-        uint256 queueLength;
         string[] adjacents;
         string[] inhabitants;
     }
@@ -29,12 +28,10 @@ contract JunctionContract {
     // function used to add a junction to the network
     function add(
         string memory _junctionId,
-        uint256 _queueLength,
         string[] memory _adjacents
     ) public {
         Junction memory newJunction = Junction({
             id: _junctionId,
-            queueLength: _queueLength,
             adjacents: _adjacents,
             inhabitants: new string[](0)
         });
@@ -62,7 +59,7 @@ contract JunctionContract {
         view
         returns (uint256)
     {
-        return junctions[_junctionId].queueLength;
+        return inhabitantCounter[_junctionId];
     }
 
     // function used to enter a junction

@@ -59,7 +59,7 @@ async function main() {
     // set up network structure
     await roadContract.add('road1', 10, []);
     await roadContract.add('road2', 10, []);
-    await junctionContract.add('junction1', 5, ['road1', 'road2']);
+    await junctionContract.add('junction1', ['road1', 'road2']);
     await roadContract.add('road3', 10, ['road2']);
     await roadContract.add('road4', 10, ['road3']);
     await roadContract.add('road5', 10, ['road4']);
