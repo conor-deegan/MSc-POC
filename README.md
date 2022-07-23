@@ -2,8 +2,6 @@
 
 ## Conor Deegan
 
----
-
 ### Setup
 
 1. Compile the smart contracts and run a local ethereum node
