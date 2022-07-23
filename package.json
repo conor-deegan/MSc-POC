@@ -10,7 +10,11 @@
         "client": "cd client && npm run dev",
         "agent": "npx hardhat run --network localhost scripts/agent.js",
         "epochs": "npx hardhat run --network localhost scripts/run.js",
-        "balances": "npx hardhat run --network localhost scripts/getBalances.js"
+        "balances": "npx hardhat run --network localhost scripts/getBalances.js",
+        "setup": "npm run compile && npm run node",
+        "agent-sim:single": "npm run agent && npm run epochs",
+        "agent-sim:multiple": "echo NEED TO DO",
+        "agent-sim:staggered": "echo NEED TO DO"
     },
     "author": "Conor Deegan",
     "license": "ISC",
