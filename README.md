@@ -19,6 +19,10 @@ npm run deploy
 npm run client
 ```
 
+4. In a seperate terminal, run the junction controller - this is an oracle which controls the traffic light system
+```
+npm run junction:controller
+```
 
 ### Running Simulations
 
@@ -30,18 +34,14 @@ Once setup, there are 3 different sims that can be run.
 npm run agent-sim:single
 ```
 
-2. A simulation consisting of N agents navigating through the network at the same time
+2. A simulation consisting of 10 agents navigating through the network at the same time
 
 ```
-npm run agent-sim:multiple <NUM_AGENTS>
-
-# e.g npm run agent-sim:multiple 100
+npm run agent-sim:multiple
 ```
 
-3. A simulation consisting of N agents navigating through the network doing so in staggered times
+3. A simulation consisting of 10 agents navigating through the network doing so in staggered times
 
 ```
-npm run agent-sim:staggered <NUM_AGENTS>
-
-# e.g npm run agent-sim:staggered 100
+npm run agent-sim:staggered
 ```

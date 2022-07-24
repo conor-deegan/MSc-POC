@@ -15,8 +15,10 @@ contract AgentContract is Utils {
         string currentLocation;
         string goalLocation;
         bool activePlan;
+        bool goalLocationStatus;
         string[] plan;
         uint256 counter;
+        uint256 totalEpochs;
     }
     mapping(string => Agent) agents;
     string[] agentIds;
@@ -24,6 +26,7 @@ contract AgentContract is Utils {
 
     // logging event structure
     event Log(string agentId, string log);
+    event TotalEpochs(string agentId, uint256 _total);
 
     constructor(address _satNavAddress) {
         satNavAddress = _satNavAddress;
@@ -39,8 +42,10 @@ contract AgentContract is Utils {
             currentLocation: _currentLocation,
             goalLocation: "",
             activePlan: false,
+            goalLocationStatus: false,
             plan: new string[](0),
-            counter: 0
+            counter: 0,
+            totalEpochs: 0
         });
         agents[_agentId] = newAgent;
         agentIds.push(_agentId);
@@ -81,6 +86,7 @@ contract AgentContract is Utils {
         public
     {
         Agent storage agent = agents[_agentId];
+        agent.goalLocationStatus = true;
         agent.goalLocation = _goalLocation;
         creatPlan(agent);
     }
@@ -94,6 +100,16 @@ contract AgentContract is Utils {
         );
     }
 
+    // function used to create a plan for an agent (public)
+    function creatPlanById(string memory _agentId) public {
+        Agent memory agent = agents[_agentId];
+        ISatNav(satNavAddress).shortestPathRequest(
+            agent.id,
+            agent.currentLocation,
+            agent.goalLocation
+        );
+    }
+
     // function used to receive the plan
     function planHook(string memory _agentId, string[] memory _plan) public {
         require(msg.sender == satNavAddress, "Cannot call this function");
@@ -104,10 +120,14 @@ contract AgentContract is Utils {
 
     // function called on each epoch
     function epoch(string memory _agentId) public {
-        Agent memory agent = agents[_agentId];
-        if (!agent.activePlan) {
+        Agent storage agent = agents[_agentId];
+        if (!agent.activePlan && agent.goalLocationStatus) {
+            creatPlan(agent);
+            return;
+        } else if (!agent.activePlan) {
             return;
         } else {
+            agent.totalEpochs++;
             ISatNav(satNavAddress).getOptimalMove(
                 _agentId,
                 agent.currentLocation,
@@ -154,5 +174,6 @@ contract AgentContract is Utils {
         agent.activePlan = false;
         agent.plan = new string[](0);
         emit Log(_agentId, "Plan Completed");
+        emit TotalEpochs(_agentId, agent.totalEpochs);
     }
 }

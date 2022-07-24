@@ -35,6 +35,8 @@ const AgentInfo = () => {
           currentLocation: agent.currentLocation,
           goalLocation: agent.goalLocation,
           plan: agent.plan,
+          goalLocationStatus: agent.goalLocationStatus,
+          time: agent.totalEpochs.toNumber()
         });
       }
       setAgents(agents);
@@ -59,13 +61,15 @@ const AgentInfo = () => {
               <p>Current Location: {agent.currentLocation}</p>
               <p>Active Plan: {agent.activePlan ? 'true' : 'false'}</p>
               <p>Goal Location: {agent.goalLocation}</p>
+              <p>Goal Location Status: {agent.goalLocationStatus ? 'true' : 'false'}</p>
               <p>
-                Plan Test:{' '}
+                Route:{' '}
                 {agent.plan.map((step: string) => (
                   <span key={step}>{step} </span>
                 ))}
               </p>
               <p>Counter: {agent.counter}</p>
+              <p>Time: {agent.time}</p>
               <p>-------------</p>
             </li>
           );

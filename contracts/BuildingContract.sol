@@ -15,6 +15,7 @@ contract BuildingContract {
     mapping(string => Building) buildings;
     mapping(string => mapping(string => bool)) inhabitants;
     mapping(string => uint256) inhabitantCounter;
+    uint256 public numBuildings = 0;
 
     // logging event structure
     event Log(string nodeId, string agentId, string log);
@@ -30,6 +31,7 @@ contract BuildingContract {
             adjacents: _adjacents
         });
         buildings[_buildingId] = newBuilding;
+        numBuildings++;
         ISatNav(satNavAddress).addNode(
             _buildingId,
             address(this),

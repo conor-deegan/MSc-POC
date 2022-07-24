@@ -94,15 +94,15 @@ contract SatNav is Utils {
     ) public {
         require(msg.sender == agentAddress, "Cannot call this function");
         if (!isIn(_currentLocation, _plan)) {
-            // check if the agent plan cannot be completed
-            IAgentContract(agentAddress).abortPlan(_agentId);
+            // check if the agent plan cannot be completed and if so create a new plan
+            IAgentContract(agentAddress).createPlanById(_agentId);
             return;
         } else if (isLast(_currentLocation, _plan)) {
             // check if the agent has completed it's plan
             IAgentContract(agentAddress).planCompleted(_agentId);
             return;
         } else {
-            // on each step I now know that the current locaion is in the plan and not the last action
+            // on each step we now know that the current locaion is in the plan and not the last action
 
             // get index of current location in plan
             uint256 indexOfCurrentLocation = indexOf(_currentLocation, _plan);
@@ -162,7 +162,10 @@ contract SatNav is Utils {
                 uint256 length = INode(getNodeAddress(_currentLocation))
                     .getLength(_currentLocation);
 
-                if (_progress == length) {
+                bool greenLight = INode(getNodeAddress(_currentLocation)).getStatus(_currentLocation);
+                if(!greenLight) {
+                    return;
+                } else if (_progress >= length) {
                     IAgentContract(agentAddress).optimalMoveHook(
                         _agentId,
                         _currentLocation,
@@ -183,7 +186,6 @@ contract SatNav is Utils {
                         INode(getNodeAddress(_currentLocation)).progress
                     );
                 } else {
-                    IAgentContract(agentAddress).abortPlan(_agentId);
                     return;
                 }
             }

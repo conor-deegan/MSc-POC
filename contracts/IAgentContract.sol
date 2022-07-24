@@ -18,4 +18,6 @@ interface IAgentContract {
     function abortPlan(string memory _agentId) external;
 
     function planCompleted(string memory _agentId) external;
+
+    function createPlanById(string memory _agentId) external;
 }

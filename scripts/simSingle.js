@@ -12,6 +12,21 @@ const main = async () => {
 
     // give the agent a goal
     await agentContract.addGoal('agent1', 'building2');
+
+    // set up epochs
+    const epoch = async () => {
+        // get all agent ids
+        const agentIds = await agentContract.getAll();
+        // loop over each agentId
+        for (const agentId of agentIds) {
+            await agentContract.epoch(agentId);
+        }
+        // wait N milliseconds and then recusively call epoch
+        const N = 2000;
+        await new Promise(resolve => setTimeout(resolve, N));
+        epoch();
+    }
+    epoch();
 }
 
 main();

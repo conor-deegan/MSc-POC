@@ -11,5 +11,7 @@ interface INode {
 
     function progress(string memory _nodeId, string memory _agentId) external;
 
-    function getLength(string memory _roadId) external returns (uint256);
+    function getLength(string memory _nodeId) external returns (uint256);
+
+    function getStatus(string memory _nodeId) external returns (bool);
 }
