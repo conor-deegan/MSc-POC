@@ -14,7 +14,7 @@
         "agent:getAvgEpochs": "npx hardhat run --network localhost scripts/getAvgs.js",
         "agent-sim:single": "npx hardhat run --network localhost scripts/simSingle.js",
         "agent-sim:multiple": "npx hardhat run --network localhost scripts/simMulty.js",
-        "agent-sim:staggered": "echo NEED TO DO"
+        "agent-sim:staggered": "npx hardhat run --network localhost scripts/simStaggared.js"
     },
     "author": "Conor Deegan",
     "license": "ISC",
